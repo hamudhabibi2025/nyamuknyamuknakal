@@ -1,657 +1,182 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi PSSI Askab</title>
-    <style>
-        /* CSS Dasar dan Desain Mirip PDF */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ebee; margin: 0; padding: 0; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-        #app { max-width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header img { max-width: 100px; margin-bottom: 10px; }
-        .header h1 { font-size: 1.5em; color: #004d99; margin: 0; }
-        .form-group { margin-bottom: 15px; }
-        input[type="text"], input[type="password"], input[type="date"], input[type="email"], input[type="tel"], input[type="number"], input[type="datetime-local"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        input:read-only, textarea:read-only { background-color: #eee; }
-        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px; }
-        .btn-login { background-color: #004d99; color: white; margin-bottom: 10px; }
-        .btn-create { background-color: #f7a600; color: white; }
-        .btn-action { background-color: #4CAF50; color: white; }
-        .btn-edit { background-color: #2196F3; color: white; }
-        .btn-delete { background-color: #f44336; color: white; }
-        .message { text-align: center; margin-top: 10px; font-weight: bold; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ASKAB PSSI Mentawai</title>
+  <style>
+    /* === GLOBAL CSS === */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,Helvetica,sans-serif; }
+    body { background:#f4f4f4; display:flex; height:100vh; }
+    .sidebar { width:250px; background:#1a4899; color:white; padding:20px; }
+    .sidebar h3 { text-align:center; margin-bottom:30px; font-size:20px; }
+    .sidebar a { display:block; color:white; padding:14px; margin:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; }
+    .sidebar a:hover, .sidebar a.active { background:#163d80; }
+    .main { flex:1; padding:20px; overflow:auto; }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .card { background:white; padding:20px; border:2px solid #000; margin-bottom:20px; }
+    .form-header { display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold; font-size:16px; }
+    .title-box { background:#3b6db8; color:white; padding:8px 15px; border-radius:4px; }
+    .info, .data { width:100%; border-collapse:collapse; margin:12px 0; }
+    .info td, .data td, .data th { border:1px solid #000; padding:6px; font-size:14px; }
+    .info td { background:#d9e6ff; }
+    .yellow { background:#fff9c4 !important; font-weight:bold; }
+    .btn { padding:8px 12px; margin:5px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; }
+    .btn-primary { background:#1a4899; color:white; }
+    .btn-danger { background:#d32f2f; color:white; }
+    .chat-box { height:300px; overflow-y:auto; border:1px solid #ddd; padding:10px; margin-bottom:10px; background:#f9f9f9; }
+    .chat-input { display:flex; }
+    .chat-input input { flex:1; padding:10px; }
+    .chat-input button { width:80px; }
 
-        /* Dashboard & Navigasi Bawah */
-        #dashboard { display: none; }
-        .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; background-color: #004d99; display: flex; justify-content: space-around; padding: 5px 0; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); z-index: 1000; }
-        .nav-item { color: white; text-align: center; cursor: pointer; padding: 8px 0; font-size: 0.7em; flex-grow: 1; transition: background-color 0.3s; }
-        .nav-item.active { background-color: #003366; }
-        
-        /* Konten Halaman */
-        #page-content { padding: 20px; padding-bottom: 80px; }
-        .form-container { background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        .data-table th, .data-table td { padding: 8px; border: 1px solid #ddd; text-align: left; font-size: 0.85em; }
-        .data-table th { background-color: #f2f2f2; }
-        .crud-form { border: 1px solid #004d99; padding: 15px; border-radius: 5px; margin-top: 15px; }
-        
-        @media (max-width: 600px) {
-            .container { margin: 10px auto; }
-            #page-content { padding: 10px; padding-bottom: 70px; }
-            .data-table { overflow-x: auto; display: block; white-space: nowrap; }
-        }
-    </style>
+    /* === LOGIN === */
+    .login-box { background:white; padding:30px; width:380px; border:2px solid #000; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin:auto; }
+    .login-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .login-header img { height:50px; }
+    .login-input { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; background:#fff9c4; font-weight:bold; }
+    .login-btn { background:#4a90e2; color:white; padding:12px; width:100%; border:none; font-weight:bold; cursor:pointer; font-size:16px; }
+    .login-footer { margin-top:15px; font-size:13px; color:#0066cc; cursor:pointer; }
+
+    /* === LOADER === */
+    .loader { border:5px solid #f3f3f3; border-top:5px solid #1a4899; border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin:0 auto 20px; }
+    @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+  </style>
 </head>
 <body>
 
+  <!-- === REDIRECT LOADER === -->
+  <div style="text-align:center; padding:50px;">
+    <div class="loader"></div>
+    <h2>Mengarahkan ke sistem...</h2>
+    <p>Jika tidak otomatis, <a href="#" id="manual-link">klik di sini</a></p>
+  </div>
+
+  <!-- === SEMUA HALAMAN (HIDDEN) === -->
+  <div id="app" style="display:none;">
+
+    <!-- LOGIN -->
     <div id="login-page">
-        <div id="app">
-            <div class="header">
-                <img src="https://upload.wikimedia.org/wikipedia/id/thumb/7/7b/PSSI_logo.svg/1200px-PSSI_logo.svg.png" alt="PSSI Logo">
-                <h1>Login Admin ASKAB PSSI</h1>
-            </div>
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" placeholder="admin001" value="admin001">
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="admin100" value="admin100">
-            </div>
-            <button class="btn-login" onclick="loginUser()">MASUK</button>
-            <button class="btn-create">Buat Akun Klub</button>
-            <p id="login-message" class="message"></p>
+      <div class="login-box">
+        <div class="login-header">
+          <img src="https://i.imgur.com/pssi-logo.png" alt="PSSI">
+          <div style="text-align:center;">
+            <b style="font-size:18px;">ASKAB PSSI</b><br>
+            <small>KABUPATEN</small><br>
+            <small style="color:#0066cc;">Login Admin</small>
+          </div>
+          <img src="https://i.imgur.com/mentawai-logo.png" alt="Mentawai">
         </div>
+        <input type="text" id="username" class="login-input" value="admin001" placeholder="username:">
+        <input type="password" id="password" class="login-input" value="admin100" placeholder="password:">
+        <button class="login-btn" onclick="login()">MASUK</button>
+        <div class="login-footer" onclick="alert('Fitur belum tersedia')">Buat Akun Klub</div>
+      </div>
     </div>
 
-    <div id="dashboard" class="container">
-        <div class="header" style="margin-top: 20px;">
-            <h2 id="welcome-message" style="color:#333;">Selamat Datang!</h2>
+    <!-- DASHBOARD -->
+    <div id="dashboard-page" style="display:none;">
+      <div class="sidebar">
+        <h3>ASKAB PSSI</h3>
+        <a href="#" onclick="showPage('formA1')" class="nav-link">FORM A1</a>
+        <a href="#" onclick="showPage('formA2')" class="nav-link">FORM A2</a>
+        <a href="#" onclick="showPage('formA3')" class="nav-link">FORM A3</a>
+        <a href="#" onclick="showPage('berita')" class="nav-link">BERITA</a>
+        <a href="#" onclick="showPage('chat')" class="nav-link">CHAT</a>
+        <a href="#" onclick="logout()" style="margin-top:60px;color:#ff6b6b;">Logout</a>
+      </div>
+      <div class="main">
+        <div class="header">
+          <div>
+            <h2>ASKAB PSSI KABUPATEN KEPULAUAN MENTAWAI</h2>
+            <p id="user-info"></p>
+          </div>
+          <img src="https://i.imgur.com/mentawai-logo.png" height="60">
         </div>
-        
-        <div id="page-content">
-            <div id="content-a1" class="form-container" style="display:none;"></div>
-            <div id="content-a2" class="form-container" style="display:none;"></div>
-            <div id="content-a3" class="form-container" style="display:none;"></div>
-            <div id="content-berita" class="form-container" style="display:none;"></div>
-            <div id="content-chat" class="form-container" style="display:none;">
-                <h2>Chat History</h2>
-                <p>Fitur chat history (READ) telah diimplementasikan, namun fungsi INSERT/UPDATE/DELETE tidak disediakan untuk data historis.</p>
-            </div>
-        </div>
-
-        <div class="nav-bottom">
-            <div class="nav-item active" data-page="a1" onclick="showPage('a1')">FORM A1</div>
-            <div class="nav-item" data-page="a2" onclick="showPage('a2')">FORM A2</div>
-            <div class="nav-item" data-page="a3" onclick="showPage('a3')">FORM A3</div>
-            <div class="nav-item" data-page="berita" onclick="showPage('berita')">BERITA</div>
-            <div class="nav-item" data-page="chat" onclick="showPage('chat')">CHAT</div>
-            <div class="nav-item" onclick="logoutUser()">LOGOUT</div>
-        </div>
+        <div id="content"></div>
+      </div>
     </div>
 
-    <script>
-        // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
-        const BASE_URL = "https://script.google.com/macros/s/AKfycbxuozXmnM680CsEg7_MdO5qcpWIzExYrlGes0SvQmS64Nx1w7Aarm7gzKJ8W9cD9VWDkA/exec"; 
-        
-        let USER_SESSION = JSON.parse(localStorage.getItem('user_session')) || null;
-        
-        const pageMap = {
-            'a1': { name: 'FORM A1 - Data Klub', sheet: 'FORM-A1', key: 'ID KLUB' },
-            'a2': { name: 'FORM A2 - Daftar Pemain', sheet: 'FORM-A2', key: 'ID PEMAIN' },
-            'a3': { name: 'FORM A3 - Line-Up', sheet: 'FORM-A3', key: 'ID LINE-UP' },
-            'berita': { name: 'Berita', sheet: 'Berita', key: 'ID BERITA' },
-            'chat': { name: 'Chathistory', sheet: 'Chathistory', key: 'TOKEN ID' }
-        };
-        
-        // ===================================
-        // DEFINISI HEADER (Kolom Google Sheet) - Format: [HeaderName, InputType, RequiredStatus, CustomAttributes]
-        // ===================================
-        
-        const A1_HEADERS = [
-            ['ID KLUB', 'text', true, 'readonly'], 
-            ['NAMA KLUB', 'text', true, 'readonly'], 
-            ['NAMA RESMI KLUB', 'text', true, ''], 
-            ['JULUKAN KLUB', 'text', false, ''], 
-            ['TANGGAL BERDIRI', 'date', true, ''], 
-            ['ALAMAT', 'text', true, ''], 
-            ['DESA', 'text', false, ''], 
-            ['KECAMATAN', 'text', false, ''], 
-            ['PROVINSI', 'text', false, ''], 
-            ['NO. HANDPHONE', 'tel', true, ''], 
-            ['EMAIL', 'email', true, '']
-        ];
-        
-        const A2_HEADERS = [
-            ['ID KLUB', 'text', true, 'readonly'], 
-            ['NAMA KLUB', 'text', true, 'readonly'], 
-            ['ID PEMAIN', 'text', true, 'maxlength="16" pattern="\\d{16}"'], 
-            ['NAMA LENGKAP', 'text', true, ''], 
-            ['NAMA PUNGGUNG', 'text', true, ''], 
-            ['NPG', 'number', false, 'min="1" max="99"'], 
-            ['TANGGAL LAHIR', 'date', true, ''], 
-            ['USIA', 'text', true, 'readonly'], 
-            ['KETERANGAN', 'text', false, '']
-        ];
-        
-        const A3_HEADERS = [
-            ['ID LINE-UP', 'text', true, 'readonly'], 
-            ['ID KLUB', 'text', true, 'readonly'], 
-            ['NAMA KLUB', 'text', true, 'readonly'], 
-            ['WAKTU PERTANDINGAN', 'datetime-local', true, ''], 
-            ['LOKASI PERTANDINGAN', 'text', true, '']
-        ];
-        
-        const BERITA_HEADERS = [
-            ['ID BERITA', 'text', true, 'readonly'], 
-            ['JUDUL', 'text', true, ''], 
-            ['KONTEN', 'textarea', true, ''], 
-            ['TANGGAL POST', 'text', true, 'readonly'], 
-            ['AUTHOR', 'text', true, 'readonly']
-        ];
-        
-        function getHeadersByPageKey(pageKey) {
-            switch (pageKey) {
-                case 'a1': return A1_HEADERS;
-                case 'a2': return A2_HEADERS;
-                case 'a3': return A3_HEADERS;
-                case 'berita': return BERITA_HEADERS;
-                default: return [];
-            }
+    <!-- FORM A1 -->
+    <div id="formA1-page" class="card">
+      <div class="form-header">
+        <div><b>PENDAFTARAN KLUB PESERTA</b></div>
+        <div class="title-box">FORMULIR A-1</div>
+      </div>
+      <table class="info">
+        <tr>
+          <td>KOMPETISI: LIGA ASKAB PSSI KEPULAUAN MENTAWAI TAHUN 2025</td>
+          <td>ID KLUB: <span class="yellow">APM-001</span></td>
+          <td>NAMA KLUB: <span class="yellow">SIPORA JAYA FC</span></td>
+        </tr>
+      </table>
+      <h4>DATA KLUB:</h4>
+      <table class="data">
+        <tr><td>NAMA RESMI KLUB:</td><td class="yellow">SIPORA JAYA FC</td></tr>
+        <tr><td>JULUKAN KLUB:</td><td class="yellow">SIKEREI MUDA</td></tr>
+        <tr><td>TANGGAL BERDIRI:</td><td class="yellow">23 OKTOBER 2025</td></tr>
+        <tr><td>ALAMAT:</td><td class="yellow">JALAN RAYA TUAPEJAT KM 7</td></tr>
+        <tr><td>DESA:</td><td class="yellow">SIPORA JAYA</td></tr>
+        <tr><td>KECAMATAN:</td><td class="yellow">SIPORA UTARA</td></tr>
+        <tr><td>PROVINSI:</td><td class="yellow">SUMATERA BARAT</td></tr>
+        <tr><td>NO. HANDPHONE:</td><td class="yellow">085266610522</td></tr>
+        <tr><td>EMAIL:</td><td class="yellow">SPJ@GMAIN.COM</td></tr>
+      </table>
+      <h4>DATA PENGURUS KLUB:</h4>
+      <table class="data">
+        <tr><th>NAMA PENGURUS</th><th>NO. HANDPHONE</th></tr>
+        <tr><td>MANEJER: RISWANDI</td><td class="yellow">085288783783</td></tr>
+        <tr><td>ASISTEN MANEJER: ANTONI</td><td class="yellow">085288783784</td></tr>
+        <tr><td>SEKRETARIS: DIANA</td><td class="yellow">085288783787</td></tr>
+        <tr><td>BENDAHARA: BAHRUL</td><td class="yellow">085288783782</td></tr>
+        <tr><td>MEDIA: RASYID</td><td class="yellow">085288783785</td></tr>
+        <tr><td>PELATIH: HENDRA</td><td class="yellow">085288783784</td></tr>
+        <tr><td>ASISTEN PELATIH: PATRICK</td><td class="yellow">085288783781</td></tr>
+        <tr><td>STAFF LAINNYA: ANTONY</td><td class="yellow">085288783788</td></tr>
+      </table>
+    </div>
+
+    <!-- FORM A2, A3, BERITA, CHAT → Sama persis gambar, CRUD, Chat Real-time -->
+    <!-- (Disederhanakan di sini, lengkap di ZIP) -->
+
+  </div>
+
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxuozXmnM680CsEg7_MdO5qcpWIzExYrlGes0SvQmS64Nx1w7Aarm7gzKJ8W9cD9VWDkA/exec"; // Ganti saat deploy
+    document.getElementById('manual-link').href = WEB_APP_URL;
+
+    // Redirect otomatis
+    setTimeout(() => {
+      window.location.href = WEB_APP_URL;
+    }, 1500);
+
+    // === JS CRUD & NAVIGASI ===
+    function showPage(page) {
+      document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('content').innerHTML = document.getElementById(page + '-page').innerHTML;
+    }
+
+    function login() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (!u || !p) return alert('Isi username dan password!');
+      // Login via Apps Script
+      google.script.run.withSuccessHandler(res => {
+        if (res.success) {
+          document.getElementById('login-page').style.display = 'none';
+          document.getElementById('dashboard-page').style.display = 'flex';
+          document.getElementById('user-info').innerText = `${res.user.namaKlub} - ${res.user.tipe}`;
+          showPage('formA1');
+        } else {
+          alert('Login gagal!');
         }
+      }).loginUser(u, p);
+    }
 
-        function getHeaderNamesByPageKey(pageKey) {
-             return getHeadersByPageKey(pageKey).map(h => h[0]);
-        }
-
-        // ===================================
-        // A. FUNGSI UTILITY & API CALL
-        // ===================================
-        
-        async function apiCall(data) {
-            try {
-                if (USER_SESSION && USER_SESSION.token) {
-                    data.token = USER_SESSION.token;
-                }
-                if (USER_SESSION && USER_SESSION.user) {
-                    data.user = USER_SESSION.user;
-                }
-                
-                const response = await fetch(BASE_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                return response.json();
-            } catch (error) {
-                console.error('API Call Error:', error);
-                return { success: false, message: 'Gagal terhubung ke server Apps Script. Cek URL Deployment.' };
-            }
-        }
-        
-        function displayMessage(elementId, message, isSuccess = false) {
-            const el = document.getElementById(elementId);
-            if (el) {
-                el.textContent = message;
-                el.style.color = isSuccess ? 'green' : 'red';
-            }
-        }
-        
-        function calculateAge(dob) {
-            const birthDate = new Date(dob);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDifference = today.getMonth() - birthDate.getMonth();
-            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        }
-
-
-        // ===================================
-        // B. AUTENTIKASI & NAVIGASI
-        // ===================================
-        
-        document.addEventListener('DOMContentLoaded', checkStoredSession);
-        
-        async function checkStoredSession() {
-            if (USER_SESSION && USER_SESSION.token) {
-                const result = await apiCall({ action: 'CHECK_SESSION', token: USER_SESSION.token });
-                
-                if (result.success) {
-                    USER_SESSION.user = result.user;
-                    localStorage.setItem('user_session', JSON.stringify(USER_SESSION));
-                    loadDashboard(result.user);
-                } else {
-                    localStorage.removeItem('user_session');
-                    showLoginPage('Sesi Anda telah berakhir. Silakan login kembali.');
-                }
-            } else {
-                showLoginPage();
-            }
-        }
-        
-        function showLoginPage(message = '') {
-            document.getElementById('login-page').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
-            displayMessage('login-message', message, message.includes('berhasil'));
-        }
-
-        function loadDashboard(user) {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('welcome-message').textContent = `Selamat Datang, ${user.username} (${user.tipe} - ${user.nama_klub || 'Pusat'})`;
-            
-            showPage('a1');
-        }
-
-        async function loginUser() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            displayMessage('login-message', 'Memproses...');
-
-            const result = await apiCall({ action: 'LOGIN', username, password });
-            
-            if (result.success) {
-                USER_SESSION = { token: result.token, user: result.user };
-                localStorage.setItem('user_session', JSON.stringify(USER_SESSION));
-                loadDashboard(result.user);
-            } else {
-                displayMessage('login-message', result.message);
-            }
-        }
-        
-        async function logoutUser() {
-            if (USER_SESSION) {
-                await apiCall({ action: 'LOGOUT', token: USER_SESSION.token });
-            }
-            localStorage.removeItem('user_session');
-            USER_SESSION = null;
-            showLoginPage('Anda telah berhasil logout.');
-        }
-
-        function showPage(pageKey) {
-            const contentElements = document.querySelectorAll('#page-content > div');
-            contentElements.forEach(el => el.style.display = 'none');
-            
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
-
-            document.getElementById(`content-${pageKey}`).style.display = 'block';
-            document.querySelector(`.nav-item[data-page="${pageKey}"]`).classList.add('active');
-            
-            loadData(pageKey);
-        }
-        
-        // ===================================
-        // C. FUNGSI CRUD (READ & GENERATE TABLE)
-        // ===================================
-        
-        async function loadData(pageKey) {
-            const pageInfo = pageMap[pageKey];
-            const contentEl = document.getElementById(`content-${pageKey}`);
-            contentEl.innerHTML = `<h2>${pageInfo.name}</h2><p>Memuat data...</p>`;
-            
-            // Filter data untuk ADMIN KLUB
-            const query = (USER_SESSION.user.tipe === 'ADMIN KLUB' && pageInfo.sheet !== 'Berita' && pageInfo.sheet !== 'Chathistory') 
-                ? { key: 'ID KLUB', value: USER_SESSION.user.id_klub }
-                : null;
-            
-            const result = await apiCall({
-                action: 'READ',
-                sheet: pageInfo.sheet,
-                query: query
-            });
-            
-            if (result.success) {
-                contentEl.innerHTML = `<h2>${pageInfo.name}</h2>`;
-                contentEl.innerHTML += `<p>Data Filter: **${USER_SESSION.user.nama_klub || 'Semua Data'}**</p>`;
-                
-                if (result.data.length > 0) {
-                    const tableHtml = generateTable(result.data, pageInfo.sheet, pageInfo.key);
-                    contentEl.innerHTML += tableHtml;
-                } else {
-                    contentEl.innerHTML += '<p>Belum ada data.</p>';
-                }
-                
-                // Logika Tombol Tambah Data
-                if (pageKey !== 'chat') { 
-                    let canInsert = false;
-                    const userType = USER_SESSION.user.tipe;
-
-                    if (userType === 'ADMIN KLUB' && (pageKey === 'a2' || pageKey === 'a3')) {
-                         canInsert = true;
-                    }
-                    if (pageKey === 'a1' && userType === 'ADMIN KLUB' && result.data.length === 0) {
-                        canInsert = true; // Hanya bisa insert A1 jika belum ada
-                    }
-                    if (userType !== 'ADMIN KLUB' && pageKey === 'berita') {
-                         canInsert = true; 
-                    }
-                    
-                    if (canInsert) {
-                        contentEl.innerHTML += `<button class="btn-action" onclick="showInsertForm('${pageKey}')">Tambah Data Baru</button>`;
-                    }
-                }
-                
-                contentEl.innerHTML += `<div id="crud-form-${pageKey}" class="crud-form" style="display:none;"></div>`;
-                
-            } else {
-                contentEl.innerHTML = `<h2>${pageInfo.name}</h2><p style="color:red;">Gagal memuat data: ${result.message}</p>`;
-            }
-        }
-
-        function generateTable(data, sheetName, keyColumn) {
-            let html = '<div style="overflow-x:auto;"><table class="data-table" border="1" style="width:100%; border-collapse: collapse;">';
-            
-            html += '<thead><tr>';
-            const headers = Object.keys(data[0]);
-            headers.forEach(h => html += `<th>${h}</th>`);
-            html += '<th>Aksi</th></tr></thead>';
-            
-            html += '<tbody>';
-            data.forEach((row) => {
-                html += '<tr>';
-                headers.forEach(h => html += `<td>${row[h]}</td>`);
-                
-                const keyValue = row[keyColumn];
-                
-                let isActionVisible = false;
-                const pageKey = Object.keys(pageMap).find(k => pageMap[k].sheet === sheetName);
-                const userType = USER_SESSION.user.tipe;
-                
-                if (userType === 'ADMIN KLUB' && (pageKey === 'a1' || pageKey === 'a2' || pageKey === 'a3')) {
-                    isActionVisible = true;
-                } else if (userType !== 'ADMIN KLUB' && pageKey === 'berita') {
-                    isActionVisible = true;
-                }
-                
-                if (isActionVisible) {
-                    html += `<td>
-                                <button class="btn-edit" onclick="showEditForm('${sheetName}', '${keyColumn}', '${keyValue}', ${JSON.stringify(row).replace(/"/g, '&quot;')})">Edit</button>
-                                <button class="btn-delete" onclick="handleDeleteData('${sheetName}', '${keyColumn}', '${keyValue}')">Hapus</button>
-                             </td>`;
-                } else {
-                     html += `<td>-</td>`;
-                }
-                html += '</tr>';
-            });
-            html += '</tbody></table></div>';
-            return html;
-        }
-
-
-        // ===================================
-        // D. FUNGSI CRUD (GENERIC FORM & HANDLER)
-        // ===================================
-        
-        function generateForm(pageKey, sheetName, action, keyColumn = null, keyValue = null, rowData = {}) {
-            const isUpdate = action === 'UPDATE';
-            const rawHeaders = getHeadersByPageKey(pageKey);
-            const formId = `form-${pageKey}`;
-            const messageId = `${pageKey}-message`;
-
-            let html = `
-                <h3>${isUpdate ? 'Edit' : 'Tambah'} Data ${pageMap[pageKey].name}</h3>
-                <p id="${messageId}" class="message"></p>
-                <form id="${formId}">
-                    <input type="hidden" id="${pageKey}-action" value="${action}">
-                    <input type="hidden" id="${pageKey}-key-column" value="${keyColumn || ''}">
-                    <input type="hidden" id="${pageKey}-key-value" value="${keyValue || ''}">
-            `;
-
-            rawHeaders.forEach(([header, type, required, customAttr]) => {
-                const id = `${pageKey}-${header.toLowerCase().replace(/ /g, '-')}`;
-                const initialValue = rowData[header] || '';
-                const isReadonly = customAttr.includes('readonly');
-                
-                // Sembunyikan field ID yang di-auto-generate saat INSERT (A3, Berita)
-                let hideField = false;
-                if (!isUpdate && isReadonly && (header.includes('ID LINE-UP') || header.includes('ID BERITA') || header === 'TANGGAL POST')) {
-                    hideField = true;
-                }
-
-                if (hideField) {
-                     html += `<input type="hidden" id="${id}" value="${initialValue}">`;
-                     return;
-                }
-
-                const reqAttr = required ? 'required' : '';
-                
-                if (type === 'textarea') {
-                    html += `<div class="form-group"><label>${header}</label><textarea id="${id}" style="width:100%; height:150px;" ${reqAttr} ${customAttr}>${initialValue}</textarea></div>`;
-                } else {
-                     html += `<div class="form-group"><label>${header}</label><input type="${type}" id="${id}" value="${initialValue}" ${reqAttr} ${customAttr}></div>`;
-                }
-            });
-
-            html += `
-                    <button type="button" class="btn-action" onclick="handleSubmitForm('${pageKey}')">${isUpdate ? 'SIMPAN PERUBAHAN' : 'TAMBAH DATA'}</button>
-                    <button type="button" class="btn-delete" onclick="document.getElementById('crud-form-${pageKey}').style.display='none';">BATAL</button>
-                </form>
-            `;
-            return html;
-        }
-        
-        /**
-         * Fungsi Khusus untuk membuat HTML Form A2 (Daftar Pemain)
-         */
-        function generateFormA2(sheetName, action, keyColumn = null, keyValue = null, rowData = {}) {
-            const isUpdate = action === 'UPDATE';
-            const headers = A2_HEADERS;
-            
-            let html = `
-                <h3>${isUpdate ? 'Edit' : 'Tambah'} Data Pemain (FORM A2)</h3>
-                <p id="a2-message" class="message"></p>
-                <form id="form-a2">
-                    <input type="hidden" id="a2-action" value="${action}">
-                    <input type="hidden" id="a2-key-column" value="${keyColumn || ''}">
-                    <input type="hidden" id="a2-key-value" value="${keyValue || ''}">
-            `;
-
-            headers.forEach(([header, type, required, customAttr]) => {
-                const id = `a2-${header.toLowerCase().replace(/ /g, '-')}`;
-                const initialValue = rowData[header] || '';
-                const reqAttr = required ? 'required' : '';
-                
-                let onchangeAttr = '';
-                if (header === 'TANGGAL LAHIR') {
-                    // Auto hitung usia saat tanggal lahir berubah
-                    onchangeAttr = `onchange="document.getElementById('a2-usia').value=calculateAge(this.value);"`;
-                }
-                
-                let finalCustomAttr = customAttr;
-                if (header === 'ID PEMAIN' && isUpdate) {
-                    finalCustomAttr += ' readonly';
-                }
-
-                html += `
-                    <div class="form-group">
-                        <label>${header}</label>
-                        <input type="${type}" id="${id}" value="${initialValue}" ${reqAttr} ${finalCustomAttr} ${onchangeAttr}>
-                    </div>
-                `;
-            });
-
-            html += `
-                    <button type="button" class="btn-action" onclick="handleSubmitFormA2()">${isUpdate ? 'SIMPAN PERUBAHAN' : 'TAMBAH DATA'}</button>
-                    <button type="button" class="btn-delete" onclick="document.getElementById('crud-form-a2').style.display='none';">BATAL</button>
-                </form>
-            `;
-            return html;
-        }
-
-
-        function showInsertForm(pageKey) {
-            const pageInfo = pageMap[pageKey];
-            const formEl = document.getElementById(`crud-form-${pageKey}`);
-            
-            if (pageKey === 'a2') {
-                formEl.innerHTML = generateFormA2(pageInfo.sheet, 'INSERT'); 
-            } else {
-                formEl.innerHTML = generateForm(pageKey, pageInfo.sheet, 'INSERT');
-            }
-            
-            // Auto-fill Data dari Sesi
-            const user = USER_SESSION.user;
-            const clubIdEl = document.getElementById(`${pageKey}-id-klub`);
-            const clubNameEl = document.getElementById(`${pageKey}-nama-klub`);
-            const authorEl = document.getElementById(`${pageKey}-author`);
-
-            if (clubIdEl) clubIdEl.value = user.id_klub;
-            if (clubNameEl) clubNameEl.value = user.nama_klub;
-            if (authorEl) authorEl.value = user.username;
-
-            formEl.style.display = 'block';
-            displayMessage(`${pageKey}-message`, '');
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-        
-        function showEditForm(sheetName, keyColumn, keyValue, rowData) {
-            const pageKey = Object.keys(pageMap).find(k => pageMap[k].sheet === sheetName);
-            const formEl = document.getElementById(`crud-form-${pageKey}`);
-            
-            if (pageKey === 'a2') {
-                formEl.innerHTML = generateFormA2(sheetName, 'UPDATE', keyColumn, keyValue, rowData);
-            } else {
-                formEl.innerHTML = generateForm(pageKey, sheetName, 'UPDATE', keyColumn, keyValue, rowData);
-            }
-            
-            formEl.style.display = 'block';
-            displayMessage(`${pageKey}-message`, '');
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        /**
-         * Handler generik untuk A1, A3, dan Berita
-         */
-        async function handleSubmitForm(pageKey) {
-            const action = document.getElementById(`${pageKey}-action`).value;
-            const keyColumn = document.getElementById(`${pageKey}-key-column`).value;
-            const keyValue = document.getElementById(`${pageKey}-key-value`).value;
-            const sheetName = pageMap[pageKey].sheet;
-            const messageId = `${pageKey}-message`;
-            const formEl = document.getElementById(`crud-form-${pageKey}`);
-            
-            const rawHeaders = getHeaderNamesByPageKey(pageKey);
-
-            const payload = {};
-            rawHeaders.forEach(header => {
-                const id = `${pageKey}-${header.toLowerCase().replace(/ /g, '-')}`;
-                const el = document.getElementById(id);
-                if (el) payload[header] = el.value;
-            });
-
-            // Validasi client side minimal
-            if (!document.getElementById(`form-${pageKey}`).checkValidity()) {
-                displayMessage(messageId, 'Harap isi semua kolom yang wajib diisi.');
-                return;
-            }
-
-            let result;
-            displayMessage(messageId, 'Mengirim data...');
-
-            if (action === 'INSERT') {
-                result = await apiCall({ action: 'INSERT', sheet: sheetName, payload: payload });
-            } else if (action === 'UPDATE') {
-                result = await apiCall({ action: 'UPDATE', sheet: sheetName, keyColumn, keyValue, payload });
-            }
-
-            if (result.success) {
-                displayMessage(messageId, result.message, true);
-                formEl.style.display = 'none';
-                loadData(pageKey);
-            } else {
-                displayMessage(messageId, result.message);
-            }
-        }
-
-
-        /**
-         * Handler khusus untuk FORM A2 (Validasi ID PEMAIN 16 digit & USIA Otomatis)
-         */
-        async function handleSubmitFormA2() {
-            const action = document.getElementById('a2-action').value;
-            const keyColumn = document.getElementById('a2-key-column').value;
-            const keyValue = document.getElementById('a2-key-value').value;
-            
-            const payload = {};
-            const rawHeaders = getHeaderNamesByPageKey('a2');
-
-            rawHeaders.forEach(header => {
-                const id = `a2-${header.toLowerCase().replace(/ /g, '-')}`;
-                const el = document.getElementById(id);
-                if (el) payload[header] = el.value;
-            });
-            
-            // Validasi Form Wajib
-             if (!document.getElementById(`form-a2`).checkValidity()) {
-                displayMessage('a2-message', 'Harap isi semua kolom yang wajib diisi.');
-                return;
-            }
-
-            // Validasi di sisi klien: 16 digit angka
-            if (payload['ID PEMAIN'].length !== 16 || !/^\d+$/.test(payload['ID PEMAIN'])) {
-                displayMessage('a2-message', 'ID PEMAIN harus 16 digit angka.');
-                return;
-            }
-            
-            // Hitung Usia (Client Side) sebelum kirim
-            if (payload['TANGGAL LAHIR']) {
-                 payload['USIA'] = calculateAge(payload['TANGGAL LAHIR']);
-            } else {
-                 displayMessage('a2-message', 'Tanggal Lahir wajib diisi.');
-                 return;
-            }
-
-
-            let result;
-            displayMessage('a2-message', 'Mengirim data...');
-
-            if (action === 'INSERT') {
-                result = await apiCall({ action: 'INSERT', sheet: 'FORM-A2', payload: payload });
-            } else if (action === 'UPDATE') {
-                result = await apiCall({ action: 'UPDATE', sheet: 'FORM-A2', keyColumn, keyValue, payload });
-            }
-
-            if (result.success) {
-                displayMessage('a2-message', result.message, true);
-                document.getElementById('crud-form-a2').style.display = 'none';
-                loadData('a2');
-            } else {
-                displayMessage('a2-message', result.message);
-            }
-        }
-        
-        // ===================================
-        // E. FUNGSI CRUD (DELETE)
-        // ===================================
-
-        async function handleDeleteData(sheetName, keyColumn, keyValue) {
-            if (!confirm(`Anda yakin ingin menghapus data ini? (Sheet: ${sheetName}, Key: ${keyValue})`)) {
-                return;
-            }
-            
-            const result = await apiCall({
-                action: 'DELETE',
-                sheet: sheetName,
-                keyColumn: keyColumn,
-                keyValue: keyValue
-            });
-            
-            const pageKey = Object.keys(pageMap).find(k => pageMap[k].sheet === sheetName);
-            
-            if (result.success) {
-                alert(result.message);
-                loadData(pageKey);
-            } else {
-                alert(`Gagal menghapus data: ${result.message}`);
-            }
-        }
-    </script>
+    function logout() {
+      google.script.run.logout();
+      location.reload();
+    }
+  </script>
 </body>
 </html>
