@@ -2,160 +2,285 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi PSSI Kepululauan Mentawai (SIPAKEM)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIPAKEM (Aplikasi Seluler)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
+        /* Variabel CSS */
         :root { 
             --primary-color: #007bff; 
-            --sidebar-width: 250px;
-        }
-        body { 
-            background-color: #f8f9fa; 
-            padding-top: 56px; /* Memberikan ruang untuk fixed navbar */
-            overflow-x: hidden; /* Menghindari scrollbar horizontal yang tidak perlu */
-        }
-        
-        /* Loading Overlay Styling */
-        #loading-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255, 255, 255, 0.9);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --navbar-height: 56px;
         }
 
-        /* Sidebar - Mobile-First Approach (Hidden by default) */
-        .sidebar {
-            height: 100vh; 
-            width: var(--sidebar-width); 
-            position: fixed; 
-            top: 0; 
-            left: calc(-1 * var(--sidebar-width)); /* Tersembunyi di luar kanvas */
-            background-color: #343a40; 
-            padding-top: 56px; 
-            color: white; 
-            transition: all 0.3s ease-in-out;
-            z-index: 1050; /* Di atas konten */
+        /* Reset dan Dasar untuk Seluler */
+        html, body {
+            height: 100%;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+            background-color: var(--light-bg);
+            padding: 0;
+            margin: 0;
         }
-        .sidebar.active {
-            left: 0; /* Status terlihat */
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+
+        /* Struktur Aplikasi Seluler */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .sidebar .nav-link { 
-            color: #ccc; 
-            padding: 10px 15px; 
-            transition: all 0.2s;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { 
-            color: white; 
-            background-color: var(--primary-color); 
+
+        /* Konten Utama - Di antara Navbar Atas dan Bottom Nav */
+        #content-div {
+            flex-grow: 1;
+            padding: 15px; /* Padding standar untuk konten */
+            padding-bottom: calc(var(--navbar-height) + 10px); /* Ruang untuk bottom nav */
+            padding-top: calc(var(--navbar-height) + 10px); /* Ruang untuk navbar atas */
         }
         
-        /* Sidebar Backdrop (Untuk mode mobile) */
-        .sidebar-backdrop {
+        /* Navbar Atas (Header) */
+        .header-navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--navbar-height);
+            z-index: 1030;
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Bottom Navigation Bar (Bottom Nav) */
+        #bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: var(--navbar-height);
+            background-color: white;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1020;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-item .nav-link {
+            color: var(--secondary-color);
+            padding: 5px 0;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .nav-item .nav-link.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .nav-item .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        /* Login Screen - Seluler */
+        #login-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s;
-        }
-        .sidebar-backdrop.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Content Area - Responsive Margin */
-        .content { 
-            padding: 20px; 
-            transition: margin-left 0.3s ease-in-out; 
-            min-height: calc(100vh - 56px);
-        }
-        
-        /* Desktop/Large Screen View (>= 992px) */
-        @media (min-width: 992px) {
-            .sidebar {
-                left: 0; /* Selalu terlihat di desktop */
-            }
-            .content { 
-                margin-left: var(--sidebar-width); /* Mendorong konten ke kanan */
-            }
-            /* Sembunyikan tombol toggle navbar di desktop */
-            .navbar-toggler-desktop-hide {
-                display: none !important;
-            }
-        }
-        
-        /* Login Page Styling for a Clean Look */
-        #login-page {
-            height: 100vh; display: flex; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, #f0f2f5 0%, #cfd9e5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+            z-index: 1040; /* Pastikan di atas semua elemen */
         }
         #login-form {
-            background: white; padding: 40px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px;
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+            width: 90%; 
+            max-width: 400px;
         }
-        .navbar-user-info { 
-            color: #ddd; 
-            font-size: 0.9rem;
+        #login-form h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-control, .btn { border-radius: 8px; }
+
+        /* Utilitas Tampilan */
+        .navbar-user-info { color: white; margin-right: 15px; font-size: 0.8rem; }
+        .list-group-item:hover { background-color: #e9ecef; cursor: pointer; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #loading-overlay p { color: var(--primary-color); font-weight: 500; }
+
+        /* Modal Custom Styling */
+        .modal-content { border-radius: 15px; }
+        .modal-header { border-bottom: none; }
+        .modal-footer { border-top: none; }
+        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+
+        /* Card, Table, dan List untuk Seluler */
+        .card { border-radius: 12px; margin-bottom: 15px; }
+        .table-responsive-sm { /* Pastikan tabel responsif */
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
-        /* Lightweight Card Styling */
-        .card {
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        /* Carousel Styling */
+        .carousel-item img {
+            height: 200px; /* Tinggi standar untuk seluler */
+            object-fit: cover;
+            border-radius: 10px;
         }
-        .card-header {
-            border-radius: 8px 8px 0 0 !important;
-            font-weight: 600;
+        .carousel-caption {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 0 0 10px 10px;
+            bottom: 0;
+            padding: 5px 10px;
+            left: 0;
+            right: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" style="display: none;">
         <div class="text-center">
             <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">Memuat...</span>
             </div>
             <p class="mt-2 text-primary">Memuat...</p>
         </div>
     </div>
 
-    <div id="app-container">
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div id="login-form">
+            <h3 class="mb-4"><i class="fas fa-futbol me-2"></i> SIPAKEM Login</h3>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2" id="login-button">
+                    Masuk <i class="fas fa-sign-in-alt ms-2"></i>
+                </button>
+            </form>
+            <div class="mt-3 text-center text-danger" id="login-error-message"></div>
+        </div>
     </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <!-- Main App Container -->
+    <div id="app-container" style="display: none;">
+        <!-- Header Navbar -->
+        <nav class="header-navbar navbar navbar-expand navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#" onclick="changePage('home')">
+                    <i class="fas fa-bars me-2 d-md-none" onclick="toggleMenu(event)"></i> 
+                    SIPAKEM
+                </a>
+                <div class="d-flex align-items-center">
+                    <span class="navbar-user-info me-3" id="current-user-info"></span>
+                    <button class="btn btn-sm btn-outline-light" onclick="doLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div id="content-div">
+            <!-- Konten halaman akan dimuat di sini oleh app.js -->
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <nav id="bottom-nav">
+            <div class="nav-item">
+                <a class="nav-link active" href="#" data-page="home" onclick="changePage('home')">
+                    <i class="fas fa-home"></i> Beranda
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" data-page="registration" onclick="changePage('registration')">
+                    <i class="fas fa-users"></i> Registrasi
+                </a>
+            </div>
+            <div class="nav-item" id="nav-setting-item" style="display: none;">
+                <a class="nav-link" href="#" data-page="settings" onclick="changePage('settings')">
+                    <i class="fas fa-cog"></i> Pengaturan
+                </a>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Toast Notification (Bootstrap) -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2001; bottom: 60px !important;">
         <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body" id="toast-body">
-                </div>
+                <div class="toast-body" id="toast-body"></div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
-
+    
+    <!-- Modal for Dynamic Forms / Confirmation -->
+    <div class="modal fade" id="mainModal" tabindex="-1" aria-labelledby="mainModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <form id="modalForm" onsubmit="event.preventDefault();">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mainModalLabel">Modal Title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBodyContent">
+                        <!-- Content loaded by JS -->
+                    </div>
+                    <div class="modal-footer" id="modalFooterContent">
+                        <!-- Footer buttons loaded by JS -->
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <?!= include('app js ok') ?> 
-    
-    <script>
-        // Panggil renderApp() setelah DOM siap (Diulang di sini untuk memastikan)
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof renderApp === 'function') {
-                // Biarkan app.js yang memanggil renderApp()
-            }
-        });
-    </script>
+    <?!= include('app.js') ?>
 </body>
 </html>
