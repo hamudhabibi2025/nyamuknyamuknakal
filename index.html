@@ -3,40 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPAKEM - Sistem Informasi PSSI Kepulauan Mentawai</title>
+    <title>Sistem Informasi PSSI Kepululauan Mentawai (SIPAKEM)</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
-        :root { --primary-color: #007bff; }
-        body { 
-            background-color: #f8f9fa; 
-            /* Tambahkan padding bawah untuk mengakomodasi bottom-nav di mobile (Poin 1) */
-            padding-bottom: 0; 
+        :root { 
+            --primary-color: #007bff; /* Warna Biru Bootstrap */
+            --sidebar-width: 250px;
+            --navbar-height: 56px;
+            --bottom-nav-height: 60px; /* Tinggi Bottom Nav (NEW) */
         }
         
-        /* Loading Overlay */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9); z-index: 9999;
-            display: none; justify-content: center; align-items: center;
+        body { 
+            background-color: #f8f9fa; 
+            /* Memberikan padding untuk menampung fixed navbar dan bottom nav */
+            padding-top: var(--navbar-height); 
+            padding-bottom: 0;
+            transition: padding-bottom 0.3s;
         }
 
-        /* Desktop Sidebar */
+        /* --- Sidebar (Desktop View) --- */
         .sidebar {
-            height: 100vh; width: 250px; position: fixed; top: 0; left: 0;
-            background-color: #343a40; padding-top: 56px; color: white; transition: all 0.3s;
+            height: 100vh; 
+            width: var(--sidebar-width); 
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            background-color: #343a40; 
+            padding-top: var(--navbar-height); 
+            color: white; 
+            transition: all 0.3s;
+            z-index: 1020; /* Di bawah navbar fixed */
         }
-        .sidebar .nav-link { color: #ccc; padding: 10px 15px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #007bff; }
+        .sidebar .nav-link { 
+            color: #ccc; 
+            padding: 10px 15px; 
+            display: flex; /* Untuk icon dan teks sejajar */
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { 
+            color: white; 
+            background-color: var(--primary-color); 
+        }
         .content { 
-            margin-left: 250px; 
+            margin-left: var(--sidebar-width); 
             padding: 20px; 
-            padding-top: 80px; /* Padding atas untuk navbar fixed-top */
             transition: all 0.3s; 
+            min-height: calc(100vh - var(--navbar-height)); /* Pastikan konten penuh */
         }
 
-        /* Login Page */
+        /* --- Mobile-First Adjustments --- (Request 1) */
+        @media (max-width: 991.98px) {
+            /* Sembunyikan Sidebar */
+            .sidebar {
+                display: none !important;
+            }
+            /* Konten mengambil lebar penuh */
+            .content {
+                margin-left: 0;
+                /* Tambahkan padding bawah untuk Bottom Nav */
+                padding-bottom: calc(20px + var(--bottom-nav-height)); 
+            }
+            /* Sesuaikan body padding bawah saat di mobile */
+            body {
+                padding-bottom: var(--bottom-nav-height); 
+            }
+            /* Sembunyikan user info dan logout di top navbar (cukup di bottom nav) */
+            .navbar-user-info, .navbar-fixed-top button {
+                display: none !important;
+            }
+            /* Biarkan brand tetap terlihat di top navbar */
+            .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+        
+        /* --- Bottom Navigation Bar (Mobile View) --- (Request 1) */
+        #bottom-nav {
+            display: none; /* Sembunyikan secara default */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--bottom-nav-height);
+            background-color: #ffffff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1030;
+        }
+
+        @media (max-width: 991.98px) {
+            #bottom-nav {
+                display: flex; /* Tampilkan di mobile */
+                justify-content: space-around;
+                align-items: center;
+                border-top: 1px solid #eee;
+            }
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 0.7rem;
+            flex: 1;
+            padding: 5px 0;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .bottom-nav-item:hover, .bottom-nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        /* --- Loading Overlay --- */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none; /* Disembunyikan secara default */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        /* --- Login Page Styling --- */
         #login-page {
             height: 100vh; display: flex; justify-content: center; align-items: center;
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -47,63 +147,6 @@
         }
         .navbar-user-info { color: white; margin-right: 15px; }
         
-        /* Poin 1: Mobile-first adjustments (media query) */
-        @media (max-width: 768px) {
-            /* Sembunyikan sidebar di mobile */
-            .sidebar { display: none !important; } 
-            
-            /* Atur ulang margin dan padding untuk konten di mobile */
-            .content {
-                margin-left: 0; 
-                padding: 10px; /* Padding lebih kecil */
-                padding-top: 60px; /* Sesuaikan dengan navbar yang lebih kecil */
-                padding-bottom: 65px; /* Sediakan ruang untuk navigasi bawah */
-            }
-            .navbar .navbar-brand {
-                font-size: 1rem; 
-            }
-            
-            /* Poin 1: CSS Navigasi Bawah */
-            #bottom-nav {
-                display: flex; /* Tampilkan di mobile */
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 60px;
-                background-color: #343a40; 
-                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-                z-index: 1030;
-                justify-content: space-around;
-            }
-            .nav-link-bottom {
-                color: #ccc;
-                flex-grow: 1;
-                text-align: center;
-                padding: 5px 0;
-                text-decoration: none;
-                font-size: 0.7rem; /* Ukuran teks kecil */
-                transition: all 0.2s;
-            }
-            .nav-link-bottom i {
-                display: block;
-                font-size: 1.2rem;
-                margin-bottom: 2px;
-            }
-            .nav-link-bottom:hover, .nav-link-bottom.active {
-                color: #007bff; 
-                background-color: #212529;
-            }
-            
-            /* Penyesuaian modal di mobile */
-            .modal-dialog.modal-dialog-centered.modal-dialog-scrollable {
-                max-width: 95%; 
-                margin: 0.5rem auto;
-            }
-            .modal-footer {
-                padding: 0.5rem;
-            }
-        }
     </style>
 </head>
 <body>
@@ -120,20 +163,25 @@
     <div id="app-container">
     </div>
 
+    <div id="bottom-nav">
+        </div>
+
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
         <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
-                <div id="toast-body" class="toast-body"></div>
+                <div id="toast-body" class="toast-body">
+                    Pesan notifikasi.
+                </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
 
-    <div id="bottom-nav" class="d-md-none"> 
-        </div>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="app.js"></script>
+    
+    <script>
+        <?!= HtmlService.createTemplateFromFile('app').getCode() ?>
+    </script>
 
 </body>
 </html>
