@@ -3,112 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi PSSI Kepululauan Mentawai (SIPAKEM) (Frontend)</title>
+    <title>Sistem Informasi PSSI Kepululauan Mentawai (SIPAKEM)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
-        /* Variabel Warna */
         :root { 
-            --primary-color: #007bff; /* Biru terang */
-            --secondary-color: #343a40; /* Abu-abu gelap (untuk sidebar) */
+            --primary-color: #007bff; 
+            --sidebar-width: 250px;
         }
-
         body { 
             background-color: #f8f9fa; 
-            padding-top: 56px; /* Padding atas untuk Fixed Navbar */
+            padding-top: 56px; /* Memberikan ruang untuk fixed navbar */
+            overflow-x: hidden; /* Menghindari scrollbar horizontal yang tidak perlu */
         }
         
-        /* 1. Kustomisasi Layout Responsive */
-        /* Sidebar Desktop (Hanya muncul di layar besar) */
-        .sidebar-desktop {
+        /* Loading Overlay Styling */
+        #loading-overlay {
             position: fixed;
-            top: 56px; /* Di bawah navbar */
-            left: 0;
-            bottom: 0;
-            width: 250px;
-            background-color: var(--secondary-color);
-            color: white;
-            z-index: 1000;
-            padding-top: 0;
-            overflow-y: auto;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Konten Utama (Bergeser saat di Desktop) */
-        .main-content-wrapper {
-            transition: margin-left 0.3s;
-            margin-left: 0; /* Default (Mobile) */
+        /* Sidebar - Mobile-First Approach (Hidden by default) */
+        .sidebar {
+            height: 100vh; 
+            width: var(--sidebar-width); 
+            position: fixed; 
+            top: 0; 
+            left: calc(-1 * var(--sidebar-width)); /* Tersembunyi di luar kanvas */
+            background-color: #343a40; 
+            padding-top: 56px; 
+            color: white; 
+            transition: all 0.3s ease-in-out;
+            z-index: 1050; /* Di atas konten */
         }
-        
-        /* Hanya terapkan margin-left di layar besar (Desktop) */
-        @media (min-width: 992px) {
-            .main-content-wrapper {
-                margin-left: 250px; /* Lebar Sidebar */
-            }
+        .sidebar.active {
+            left: 0; /* Status terlihat */
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
         }
-
-        /* Link Menu */
-        .sidebar-desktop .nav-link, 
-        .offcanvas-body .nav-link { 
+        .sidebar .nav-link { 
             color: #ccc; 
             padding: 10px 15px; 
-            margin: 2px 0;
-            border-radius: 5px;
+            transition: all 0.2s;
         }
-        .sidebar-desktop .nav-link:hover, 
-        .offcanvas-body .nav-link:hover { 
-            color: white; 
-            background-color: #495057; 
-        }
-        .sidebar-desktop .nav-link.active, 
-        .offcanvas-body .nav-link.active { 
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { 
             color: white; 
             background-color: var(--primary-color); 
         }
         
-        /* Login Page Styling */
+        /* Sidebar Backdrop (Untuk mode mobile) */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+        .sidebar-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Content Area - Responsive Margin */
+        .content { 
+            padding: 20px; 
+            transition: margin-left 0.3s ease-in-out; 
+            min-height: calc(100vh - 56px);
+        }
+        
+        /* Desktop/Large Screen View (>= 992px) */
+        @media (min-width: 992px) {
+            .sidebar {
+                left: 0; /* Selalu terlihat di desktop */
+            }
+            .content { 
+                margin-left: var(--sidebar-width); /* Mendorong konten ke kanan */
+            }
+            /* Sembunyikan tombol toggle navbar di desktop */
+            .navbar-toggler-desktop-hide {
+                display: none !important;
+            }
+        }
+        
+        /* Login Page Styling for a Clean Look */
         #login-page {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             height: 100vh; display: flex; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #f0f2f5 0%, #cfd9e5 100%);
         }
         #login-form {
-            background: white; padding: 40px; border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px;
+            background: white; padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px;
+        }
+        .navbar-user-info { 
+            color: #ddd; 
+            font-size: 0.9rem;
         }
         
-        /* Loading Overlay */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.8); z-index: 9999;
-            display: none; /* Hidden by default */
-            justify-content: center; align-items: center;
-            flex-direction: column;
+        /* Lightweight Card Styling */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
-        .navbar-user-info { color: white; }
+        .card-header {
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-
-    <div class="offcanvas offcanvas-start bg-dark" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-white" id="mobileSidebarLabel">
-                <i class="fas fa-futbol me-2"></i> Menu SIPAKEM
-            </h5>
-            <button type="button" class="btn-close text-reset bg-light" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body" id="sidebar-menu-list-mobile">
-            </div>
-    </div>
-    
-    <div class="sidebar-desktop d-none d-lg-block">
-        <div class="py-2">
-            <h6 class="text-white text-center py-2 border-bottom">NAVIGASI</h6>
-            <div id="sidebar-menu-list-desktop">
-                </div>
-        </div>
-    </div>
 
     <div id="loading-overlay">
         <div class="text-center">
@@ -119,22 +132,30 @@
         </div>
     </div>
 
-    <div class="main-content-wrapper">
-        <div id="app-container">
-            </div>
+    <div id="app-container">
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="toast-body">
-                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="app.js"></script> 
+    
+    <?!= include('app js ok') ?> 
+    
+    <script>
+        // Panggil renderApp() setelah DOM siap (Diulang di sini untuk memastikan)
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof renderApp === 'function') {
+                // Biarkan app.js yang memanggil renderApp()
+            }
+        });
+    </script>
 </body>
 </html>
